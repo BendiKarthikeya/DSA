@@ -92,21 +92,43 @@ class ShoppingCart {
     }
 
     // Method to remove an item from the cart
-    public void removeItem(String name) {
-        cart.removeIf(item -> item.getName().equalsIgnoreCase(name));
+    public void removeItem(String name, int quantityToRemove) {
+        for (int i = 0; i < cart.size(); i++) {
+            Item item = cart.get(i);
+            if (item.getName().equalsIgnoreCase(name)) {
+                int currentQuantity = item.getQuantity();
+        
+                if (quantityToRemove >= currentQuantity) {
+                    // Remove the item if quantity to remove is greater than or equal to the current quantity
+                    cart.remove(i);
+                    System.out.println(name + " removed from the cart.");
+                } else {
+                    // Otherwise, reduce the quantity of the item
+                    item.setQuantity(currentQuantity - quantityToRemove);
+                    System.out.println(quantityToRemove + " " + name + "(s) removed from the cart.");
+                }
+                return;
+            }
+        }
+        System.out.println(name + " is not in the cart.");
     }
+    
 
     // Method to update the quantity of an item in the cart
     public void updateItemQuantity(String name, int quantity) {
         for (Item item : cart) {
             if (item.getName().equalsIgnoreCase(name)) {
-                item.setQuantity(quantity);
                 if (quantity <= 0) {
-                    removeItem(name); // Remove item if quantity is set to 0 or less
+                    // Call removeItem with the current quantity to remove the item
+                    removeItem(name, item.getQuantity());
+                } else {
+                    // Update the item's quantity if the new quantity is positive
+                    item.setQuantity(quantity);
                 }
                 return;
             }
         }
+        System.out.println(name + " is not in the cart.");
     }
 
     // Method to display all items in the cart
@@ -214,7 +236,7 @@ class ShoppingCart {
 }
 
 // Main class to run the ShoppingCart application
-public class ShoppingCartAppA {
+public class ShoppingCartApp {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ShoppingCart cart = new ShoppingCart(); // Initialize a new shopping cart
@@ -242,8 +264,9 @@ public class ShoppingCartAppA {
                 case "remove" -> {
                     System.out.print("Enter item name to remove: ");
                     String name = scanner.nextLine();
-                    cart.removeItem(name);
-                    System.out.println(name + " removed from the cart.");
+                    System.out.print("Enter quantity to remove: ");
+                    int quantityToRemove = Integer.parseInt(scanner.nextLine());
+                    cart.removeItem(name, quantityToRemove);
                 }
                 case "update" -> {
                     System.out.print("Enter item name to update quantity: ");
